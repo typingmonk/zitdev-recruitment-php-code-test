@@ -11,6 +11,7 @@ namespace Test\App;
 
 use App\App\Demo;
 use App\Util\HttpRequest;
+use App\Service\AppLogger;
 use PHPUnit\Framework\TestCase;
 
 class DemoTest extends TestCase {
@@ -21,9 +22,14 @@ class DemoTest extends TestCase {
 		$this->assertEquals("bar", $value);	
     }
 
-    public function test_get_user_info() {
-		$demo = new Demo("", new HttpRequest());
-		$value = $demo->get_user_info();
-		$this->assertEquals(null, $value);
+	public function test_get_user_info() {
+		$logger = new AppLogger('think-log');
+		$reqMock = $this->createMock(HttpRequest::class);
+		$test_json = json_encode( ['error' => 0,'data' => ['id' => 1,'username' => 'hello world']]);
+		$reqMock->method('get')->willReturn($test_json);
+		$demo = new Demo($logger, $reqMock);
+		$result = $demo->get_user_info();
+		$this->assertNotEmpty($result['id']);
+		$this->assertNotEmpty($result['username']);
     }
 }
